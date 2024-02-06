@@ -32,15 +32,23 @@ Make sure to include foreign keys for the relationships that will `CASCADE` upon
 **Answer box:**
 ```sql
 CREATE TABLE forms (
-    --     Add columns here
+  id  integer primary key,
+  title text,
+  description text
 );
 
 CREATE TABLE questions (
-    --     Add columns here
+  id  integer primary key,
+  form_id  integer references (forms.id),
+  title   text,
+  question_type question_type
+
 );
 
 CREATE TABLE question_options (
-    --     Add columns here
+  id  integer primary key,
+  question_id integer references (questions.id),
+  option text
 );
 ```
 
