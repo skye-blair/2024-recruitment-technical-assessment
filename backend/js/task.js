@@ -1,23 +1,97 @@
+/**
+ * Modified Task 1 as helper for task 3
+ */
+function getLeafFiles(files) {
+    const parentIds = new Set();
+    const leafFiles = [];
+    
+    // Find unique IDs of parent files
+    for (const file of files) {
+        parentIds.add(file.parent);
+    }
+
+    // Check if each file is a parent and remove from parentIds when found
+    for (const file of files) {
+        if (!parentIds.delete(file.id)) {
+            leafFiles.push(file);
+        }
+    }
+
+    // Return array of leaf files
+    return leafFiles;
+}
 
 /**
  * Task 1
  */
 function leafFiles(files) {
-    return [];
+    // Get leaf files
+    const leafFiles = getLeafFiles(files);
+
+    // Return names only
+    return leafFiles.map(item => item.name);
 }
 
 /**
- * Task 1
+ * Task 2
  */
 function kLargestCategories(files, k) {
-    return [];
+    const categoryCount = [];
+    let categoryArray = [];
+    let categoryNames = [];
+
+    // Get count of each category
+    for (const file of files) {
+        for (const category of file.categories) {
+            if (!categoryCount[category]) {
+                categoryCount[category] = 1;
+            } else {
+                categoryCount[category]++;
+            }
+        }
+    }
+
+    // Sort by mapping to array
+    categoryArray = Object.keys(categoryCount).map(item => [item, categoryCount[item]]);
+    categoryArray.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+    // Take names of first k categories
+    categoryNames = categoryArray.slice(0,k).map(a => a[0]);
+
+    // Return list of k categories
+    return categoryNames;
 }
 
 /**
- * Task 1
+ * Task 3
  */
 function largestFileSize(files) {
-    return 0;
+    // No files
+    if (files.length == 0) {
+        return 0;
+    }
+
+    // Have list of uncalculated files, and dictionary of each file's size
+    let notCalculatedFiles = structuredClone(files);
+    const fileSizes = Object.assign({}, ...files.map(file => ({[file.id]: file.size})));
+    
+    // Update all file sizes
+    while (notCalculatedFiles.length != 0) {
+        // Get leaf files
+        const leafFiles = getLeafFiles(notCalculatedFiles);
+        // Update size of parents
+        for (const file of leafFiles) {
+            fileSizes[file.parent] += fileSizes[file.id];
+        }
+        // Remove from not calculated list
+        notCalculatedFiles = notCalculatedFiles.filter(item => !leafFiles.includes(item));
+    }
+
+    // Map file sizes to array and sort to find largest
+    const fileSizesArray = Object.keys(fileSizes).map(item => fileSizes[item]);
+    fileSizesArray.sort((a, b) => b - a);
+
+    return fileSizesArray[0];
 }
 
 
