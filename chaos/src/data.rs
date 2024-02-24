@@ -2,10 +2,17 @@ use axum::{http::StatusCode, response::IntoResponse, Json};
 use serde::{Deserialize, Serialize};
 
 pub async fn process_data(Json(request): Json<DataRequest>) -> impl IntoResponse {
-    // Calculate sums and return response
+    let mut response = DataResponse {
+        string_len: 0,
+        int_sum: 0,
+    };
 
-    let response = DataResponse {
-        
+    // Calculate sums and return response
+    for item in request.data {
+        match item {
+            dataType::Int(num) => response.int_sum += num,
+            dataType::String(string) => response.string_len += string.len() as i32,
+        };
     };
 
     (StatusCode::OK, Json(response))
@@ -13,10 +20,17 @@ pub async fn process_data(Json(request): Json<DataRequest>) -> impl IntoResponse
 
 #[derive(Deserialize)]
 pub struct DataRequest {
-    // Add any fields here
+    data: Vec<dataType>,
 }
 
 #[derive(Serialize)]
 pub struct DataResponse {
-    // Add any fields here
+    string_len: i32,
+    int_sum: i32,
+}
+
+#[derive(Deserialize)]
+enum dataType {
+    Int(i32),
+    String(String),
 }
